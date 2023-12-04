@@ -10,7 +10,7 @@ from typing import Optional
 
 app = FastAPI()
 
-# Habilita CORS (permite que o Svelte acesse o FastAPI)
+# Habilita CORS (permite que o Svelte acesse o FastAPI)---------------------------------------------------------------
 origins = [
      "http://localhost",
      "http://localhost:5173",
@@ -26,7 +26,7 @@ app.add_middleware(
     #allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
-# Lista de gêneros de filmes (usado em uma rota da API)
+# Lista de gêneros de filmes (usado em uma rota da API)---------------------------------------------------------------
 genres = [{'id': 28, 'name': 'Ação'}, 
     {'id': 12, 'name': 'Aventura'}, 
     {'id': 16, 'name': 'Animação'}, 
@@ -48,33 +48,33 @@ genres = [{'id': 28, 'name': 'Ação'},
     {'id': 37, 'name': 'Faroeste'}
     ]
 
-@app.get("/api/genres")# Cria uma sessão de banco de dados
+@app.get("/api/genres")# Cria uma sessão de banco de dados---------------------------------------------------------------
 def read_genres():
     return genres
 
-# Cria uma sessão de banco de dados
+# Cria uma sessão de banco de dados---------------------------------------------------------------
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-# Cria tabelas no banco de dados, se elas ainda não existirem
+# Cria tabelas no banco de dados, se elas ainda não existirem---------------------------------------------------------------
 models.Base.metadata.create_all(bind=engine)
 
 
-# Rota para buscar um filme pelo título
+# Rota para buscar um filme pelo título---------------------------------------------------------------
 @app.get("/filme/{title}")
 async def find_movie(title: str):
     return {"tmdb_id": title}
 
-# Rota para buscar filmes associados a um artista
+# Rota para buscar filmes associados a um artista---------------------------------------------------------------
 @app.get("/artista/filmes")
 async def find_filmes_artista(personId: int):
     return {"id": personId}
 
-# Rota para buscar filmes com base em um termo de pesquisa
-# Código para buscar filmes pelo termo de pesquisa ou listar filmes populares e em estreia
+# Rota para buscar filmes com base em um termo de pesquisa---------------------------------------------------------------
+# Código para buscar filmes pelo termo de pesquisa ou listar filmes populares e em estreia---------------------------------------------------------------
 @app.get("/filmes")
 async def filmes(search: Optional[str] = None):
     if search:
@@ -90,7 +90,7 @@ async def filmes(search: Optional[str] = None):
             })
         return {"search": filmes_search}
     else:
-        # Buscar filmes populares
+        # Buscar filmes populares---------------------------------------------------------------
         data_populares = get_json("/discover/movie", "?sort_by=vote_count.desc")
         results_populares = data_populares['results']
         populares = [{
@@ -99,7 +99,7 @@ async def filmes(search: Optional[str] = None):
             "tmdb_id": movie['id']
         } for movie in results_populares[:4]]
 
-        # Buscar filmes em estreia
+        # Buscar filmes em estreia---------------------------------------------------------------
         data_estreias = get_json("/movie/now_playing", "?language=en-US")
         results_estreias = data_estreias['results']
         estreias = [{
