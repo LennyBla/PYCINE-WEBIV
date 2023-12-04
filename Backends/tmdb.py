@@ -2,20 +2,20 @@ import requests
 import uvicorn
 from fastapi import FastAPI 
 
-# Chave de API para acessar os serviços do TMDB
+# Chave de API para acessar os serviços do TMDB---------------------------------------------------------------
 api_key = "6f77cb8794e999fed44476c8b3303723"
 
-# URL base para descobrir filmes no TMDB
+# URL base para descobrir filmes no TMDB---------------------------------------------------------------
 endpoint = "https://api.themoviedb.org/3/discover/movie"
 
-# Parâmetros para a requisição, como idioma, página e critérios de ordenação
+# Parâmetros para a requisição, como idioma, página e critérios de ordenação---------------------------------------------------------------
 params = f"?include_adult=false&include_video=false&language=en-US&page=1&sort_by=vote_count.desc&year=2023"
 url = f"{endpoint}{params}&api_key={api_key}"
 
-# Cabeçalhos para a requisição HTTP
+# Cabeçalhos para a requisição HTTP---------------------------------------------------------------
 headers = {"accept": "application/json"} 
 
-# Lista de gêneros de filmes
+# Lista de gêneros de filmes---------------------------------------------------------------
 genres = [{'id': 28, 'name': 'Ação'}, 
     {'id': 12, 'name': 'Aventura'}, 
     {'id': 16, 'name': 'Animação'}, 
@@ -44,7 +44,7 @@ def get_json(endpoint, params=None):
     response = requests.get(url)
     return response.json()
 
-# retorna o nome do genero de acordo com o id
+# retorna o nome do genero de acordo com o id---------------------------------------------------------------
 def get_genero_id(id):
     for genre in genres:
         if genre['id'] == id:
@@ -52,7 +52,7 @@ def get_genero_id(id):
             return genre ['name']
     return None
 
-# busca filme pelo título
+# busca filme pelo título---------------------------------------------------------------
 def get_movie_by_name(name: str):
     data = get_json(
         "https://api.themoviedb.org/3/search/movie",
@@ -67,10 +67,10 @@ def get_artist_by_name(name: str):
         f"?query={name}"
     )
     return data
-# Criação da aplicação FastAPI
+# Criação da aplicação FastAPI---------------------------------------------------------------
 app = FastAPI()
 
-# Rota para obter filmes da semana
+# Rota para obter filmes da semana---------------------------------------------------------------
 @app.get('/week')
 def get_week_movies():
     data = get_json(
@@ -84,7 +84,7 @@ def get_week_movies():
             break
     return five_movies
 
-# Função para imprimir filmes populares (usada somente no script, não na API)
+# Função para imprimir filmes populares (usada somente no script, não na API)---------------------------------------------------------------
 def filmes_populares():
     data = get_json(
         "https://api.themoviedb.org/3/discover/movie",
@@ -101,7 +101,7 @@ def filmes_populares():
 
     print(f"Total: {len(results)}")
    
-#Faz a requisição GET para a url
+#Faz a requisição GET para a url---------------------------------------------------------------
 # salva na variável response o resultado na busca do TMDB
 
 response = requests.get(url, headers=headers)
@@ -116,10 +116,10 @@ print(f"page: {page}")
 
 filme1 = data['results'][0]
 
-#Obtem apenas o titulo do primeiro filme
+#Obtem apenas o titulo do primeiro filme---------------------------------------------------------------
 print(filme1['original_title'])
 
-#IMPRIMIR o título de todos os filmes em "data"
+#IMPRIMIR o título de todos os filmes em "data"---------------------------------------------------------------
 
 results = data['results']
 print("="*20)
@@ -130,7 +130,7 @@ for movie in results:
     print("------------")
 print(f"Total:{len(results)}")
 
-# Obter os gêneros
+# Obter os gêneros---------------------------------------------------------------
 
 end = "https://api.themoviedb.org/3/genre/movie/list"
 params = "?language=en&api_key=" + api_key
@@ -148,11 +148,11 @@ if 'genres' in data:
 else:
     print("Não foi possível obter os gêneros da API.") 
     
-# Execução do script para teste    
+# Execução do script para teste  ---------------------------------------------------------------  
 if __name__ == "__main__":
     filmes_populares()
 
-    # Obter o nome dos generos
+    # Obter o nome dos generos---------------------------------------------------------------
     end = f"https://api.themoviedb.org/3/genre/movie/list"
     params = "?language=en"
     url = f"{end}{params}&api_key={api_key}"
