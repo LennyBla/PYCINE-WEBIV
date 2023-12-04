@@ -48,9 +48,10 @@ def favorite_movie(db: Session, user_id: int, tmdb_id: int, title: str, image: s
 
     return user.movies
 
-
+# LISTA TODOS OS FILMES FAVORITOS ------------------------------------------------------------------------
 def get_favorito(db: Session, user_id: int):
     return db.query(models.Movie).filter(models.Movie.user_id == user_id).all()
+
 def get_tmdb_id(db: Session, user_id: int, tmdb_id: int):
     return db.query(models.Favorito_movie).filter_by(user_id=user_id, tmdb_id=tmdb_id).first()
 # DELETA FAVORITO *------------------------------------------------------------------------------------
@@ -97,6 +98,7 @@ def favorite_artista(db: Session, user_id: int, tmdb_id: int):
 # LISTA TODOS OS ARTISTAS FAVORITOS ------------------------------------------------------------------------
 def get_favorites_artista(db: Session, user_id: int):
     return db.query(models.Artista).filter(models.Artista.user_id == user_id).all()
+
 # DELETA/ DESFAVORITA O ARTISTA ----------------------------------------------------------------------------
 def delete_favorite_artista(db: Session, tmdb_id: int, user_id: int):
     user = db.query(models.User).filter(models.User.id == user_id).first()
