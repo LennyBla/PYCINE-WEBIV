@@ -1,4 +1,5 @@
 <script>
+  // Importando os componentes necessários
   import Artista from "./Artista.svelte";
   import Movie from "./Movie.svelte";
   import User from "./User.svelte";
@@ -7,17 +8,20 @@
   import Favoritos from "./Favoritos.svelte";
   import ArtistasFavoritos from "./ArtistasFavoritos.svelte";
 
+  // Definindo uma variável para controlar qual página/componente deve ser exibido
   let menu = 1; // Defina o valor inicial do menu
 
+  // Função para trocar a página/componente
   function switchPage(page) {
     menu = page;
   }
 </script>
 
+<!-- Barra de Navegação -->
 <nav class="menu-horizontal">
   <div class="components-nav">
     <ul>
-     
+      <!-- Links para cada componente, utilizando a função de switchPage -->
       <li><a href="/" on:click|preventDefault={() => (menu = 1)}>Filmes</a></li>
       <li><a href="/" on:click|preventDefault={() => (menu = 2)}>Artista</a></li>
       <li><a href="/" on:click|preventDefault={() => (menu = 3)}>User</a></li>
@@ -39,9 +43,10 @@
   </div>
 </nav>
 
+<!-- Componente de Navegação -->
 <Nav bind:menu={menu} />
 
-
+<!-- Renderização condicional dos componentes com base na variável 'menu' -->
 {#if menu === 1}
   <Movie />
 {:else if menu === 2}
@@ -57,6 +62,7 @@
 {/if}
 
 <style>
+  /* Estilos para a Barra de Navegação */
   nav.menu-horizontal {
     background-color: #000000d8;
     color: #fff;
@@ -82,6 +88,7 @@
     font-weight: 300;
   }
 
+  /* Estilos para a barra de pesquisa e ícone do perfil */
   .right-content {
     display: flex;
     align-items: center;

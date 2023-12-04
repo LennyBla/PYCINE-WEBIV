@@ -1,18 +1,26 @@
 <script>
+    // Variáveis reativas para armazenar a resposta da solicitação e a promessa de obter usuários
     let resposta = "";
     let promise = getUsers();
 
     // Função para obter a lista de usuários
     async function getUsers() {
-        // Faz uma solicitação GET para o endpoint /users
-        const res = await fetch(`http://localhost:8000/getUsers/`);
-        const text = await res.json();
-        if (res.ok) {
-            // Retorna os dados se a resposta for bem-sucedida
-            return text;
-        } else {
-            // Lança um erro se a resposta não for bem-sucedida
-            throw new Error(text);
+        try {
+            // Faz uma solicitação GET para o endpoint /users
+            const res = await fetch(`http://localhost:8000/getUsers/`);
+            const text = await res.json();
+            
+            if (res.ok) {
+                // Retorna os dados se a resposta for bem-sucedida
+                return text;
+            } else {
+                // Lança um erro se a resposta não for bem-sucedida
+                throw new Error(text);
+            }
+        } catch (error) {
+            // Captura e relança o erro para ser tratado na promessa
+            console.error('Erro ao obter usuários:', error);
+            throw error;
         }
     }
 
@@ -23,23 +31,29 @@
 
     // Função para excluir um usuário
     async function deleteUser(e) {
-        // Evita o comportamento padrão do envio do formulário
-        e.preventDefault();
-        const userId = e.target.elements.id.value;
-        const userName = e.target.elements.name.value;
+        try {
+            // Evita o comportamento padrão do envio do formulário
+            e.preventDefault();
+            const userId = e.target.elements.id.value;
+            const userName = e.target.elements.name.value;
 
-        // Faz uma solicitação DELETE para excluir o usuário pelo ID
-        const res = await fetch(`http://localhost:8000/users/${userId}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
-        });
+            // Faz uma solicitação DELETE para excluir o usuário pelo ID
+            const res = await fetch(`http://localhost:8000/users/${userId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-        if (res.ok) {
-            // Atualiza a mensagem de resposta
-            resposta = `Usuário ${userName} excluído`;
+            if (res.ok) {
+                // Atualiza a mensagem de resposta
+                resposta = `Usuário ${userName} excluído`;
 
-            // Faz uma solicitação GET para atualizar a lista de usuários após a exclusão bem-sucedida
-            promise = getUsers();
+                // Faz uma solicitação GET para atualizar a lista de usuários após a exclusão bem-sucedida
+                promise = getUsers();
+            }
+        } catch (error) {
+            // Captura e relança o erro para ser tratado na promessa
+            console.error('Erro ao excluir usuário:', error);
+            throw error;
         }
     }
 </script>

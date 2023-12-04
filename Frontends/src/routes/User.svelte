@@ -1,7 +1,11 @@
 <script>
+    // Variável reativa para armazenar a resposta da solicitação fetch
     let resposta = "";
 
-    // Função para enviar o formulário
+    /**
+     * Função para enviar o formulário via solicitação fetch.
+     * @param {Event} event - Evento de submissão do formulário.
+     */
     async function sendForm(event) {
         // Evitar o comportamento padrão de envio do formulário
         event.preventDefault();
@@ -20,20 +24,24 @@
             body: JSON.stringify(userData)
         });
 
-        // Verificar se a resposta tem um código de status 400 (Bad Request)
-        if (response.status === 400) {
-            // Usuário já cadastrado, exibir alerta correspondente
-            alert('Usuário já cadastrado');
-        } else {
-            // A resposta é bem-sucedida, obter e armazenar a resposta JSON
-            const jsonResponse = await response.json();
-            console.log(response);
+        try {
+            // Verificar se a resposta tem um código de status 400 (Bad Request)
+            if (response.status === 400) {
+                // Usuário já cadastrado, exibir alerta correspondente
+                alert('Usuário já cadastrado');
+            } else {
+                // A resposta é bem-sucedida, obter e armazenar a resposta JSON
+                const jsonResponse = await response.json();
+                console.log(response);
 
-            // Atualizar a variável de resposta com a mensagem de sucesso
-            resposta = JSON.stringify('Adicionado com sucesso');
+                // Atualizar a variável de resposta com a mensagem de sucesso
+                resposta = JSON.stringify('Adicionado com sucesso');
 
-            // Exibir alerta com a resposta
-            alert(resposta);
+                // Exibir alerta com a resposta
+                alert(resposta);
+            }
+        } catch (error) {
+            console.error('Erro ao processar a resposta da solicitação:', error);
         }
     }
 </script>
