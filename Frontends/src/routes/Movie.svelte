@@ -5,13 +5,8 @@
   
   async function getFilmes(searchTerm) {
     try {
-      const url = searchTerm
-      ? `http://localhost:8000/filmes?title=${encodeURIComponent(searchTerm)}`
-      : `http://localhost:8000/filmes`;
-
-      const res = await fetch(url);
-      const text = await res.json();
-
+      const res = await fetch(`http://localhost:8000/filmes?title=${(searchTerm)}`);
+     const text = await res.json();
       if (res.ok) {
         return text;
       } else {
