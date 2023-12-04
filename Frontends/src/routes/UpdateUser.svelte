@@ -1,8 +1,14 @@
 <script>
+    // Variável reativa para armazenar a resposta da solicitação fetch
     let resposta = "";
 
-    // Função para enviar o formulário
-    async function sendForm(e, method, url){
+    /**
+     * Função para enviar o formulário via solicitação fetch.
+     * @param {Event} e - Evento de submissão do formulário.
+     * @param {string} method - Método HTTP (e.g., 'PUT', 'POST').
+     * @param {string} url - URL para a qual a solicitação será enviada.
+     */
+    async function sendForm(e, method, url) {
         e.preventDefault();
 
         // Obter os dados do formulário
@@ -23,8 +29,11 @@
         resposta = JSON.stringify(json);
     }
 
-    // Função específica para atualizar usuário
-    async function updateUser(e: Event) {
+    /**
+     * Função específica para atualizar usuário.
+     * @param {Event} e - Evento de submissão do formulário.
+     */
+    async function updateUser(e) {
         // Obter o ID do usuário do formulário
         const userId = e.target.querySelector('input[name="id"]').value;
 
