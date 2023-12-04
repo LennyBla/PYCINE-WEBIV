@@ -13,7 +13,6 @@ API de filmes e artistas em python, utilizando o frameword FastApi no Backend e 
 ### Backend
 ```bash
 # 1. instalar dependências
-cd pycine
 source env/bin/activate
 pip install requirements.txt
 # 2. criar ambiente virtual
