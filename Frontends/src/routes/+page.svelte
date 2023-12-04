@@ -4,7 +4,8 @@
   import User from "./User.svelte";
   import Nav from "./Nav.svelte"
   import UserList from "./UserList.svelte";
-  import Favoritos from "./Favoritos.svelte";  
+  import Favoritos from "./Favoritos.svelte";
+  import ArtistasFavoritos from "./ArtistasFavoritos.svelte";
 
   let menu = 1; // Defina o valor inicial do menu
 
@@ -22,6 +23,7 @@
       <li><a href="/" on:click|preventDefault={() => (menu = 3)}>User</a></li>
       <li><a href="/" on:click|preventDefault={() => (menu = 4)}>User List</a></li>
       <li><a href="/" on:click|preventDefault={() => (menu = 5)}>Meus Favoritos</a></li>
+      <li><a href="/" on:click|preventDefault={() => (menu = 6)}>Meus Artista Favoritos</a></li>
     </ul>
   </div>
 
@@ -50,6 +52,8 @@
   <UserList />
 {:else if menu === 5}
   <Favoritos />
+{:else if menu === 6}
+  <ArtistasFavoritos />
 {/if}
 
 <style>

@@ -26,7 +26,7 @@ app.add_middleware(
     #allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
-
+# Lista de gêneros de filmes (usado em uma rota da API)
 genres = [{'id': 28, 'name': 'Ação'}, 
     {'id': 12, 'name': 'Aventura'}, 
     {'id': 16, 'name': 'Animação'}, 
@@ -48,30 +48,33 @@ genres = [{'id': 28, 'name': 'Ação'},
     {'id': 37, 'name': 'Faroeste'}
     ]
 
-@app.get("/api/genres")
+@app.get("/api/genres")# Cria uma sessão de banco de dados
 def read_genres():
     return genres
 
+# Cria uma sessão de banco de dados
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-
+# Cria tabelas no banco de dados, se elas ainda não existirem
 models.Base.metadata.create_all(bind=engine)
 
 
+# Rota para buscar um filme pelo título
 @app.get("/filme/{title}")
 async def find_movie(title: str):
     return {"tmdb_id": title}
 
+# Rota para buscar filmes associados a um artista
 @app.get("/artista/filmes")
 async def find_filmes_artista(personId: int):
     return {"id": personId}
 
-# PESQUISA FILMES ------------------------------------------------------------------------------------------------
-
+# Rota para buscar filmes com base em um termo de pesquisa
+# Código para buscar filmes pelo termo de pesquisa ou listar filmes populares e em estreia
 @app.get("/filmes")
 async def filmes(search: Optional[str] = None):
     if search:
@@ -126,13 +129,15 @@ async def get_artista(name: str):
     filtro.sort(reverse=True, key=lambda artist: artist['rank'])
     return filtro
 
-# USUÁRIOS ------------------------------------------------------------------------------------------------
+# USUÁRIOS  ------------------------------------------------------------------------------------------------
+# Rotas CRUD para usuários
 @app.get("/getUsers")
 def read_users(db: Session = Depends(get_db)):
     users = crud.get_users(db)
     return users
 
 # ADICIONA USUARIO ----------------------------------------------------------------------------------------
+# Cria um novo usuário
 @app.post("/users")
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)

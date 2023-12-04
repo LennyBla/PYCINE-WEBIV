@@ -1,64 +1,53 @@
-<script>//Artista favoritos -- deve ser arrumado
-    let resposta = "";
+<script>
     let promise = getFavoritos();
     let favoritos = [];
-
+  
     async function getFavoritos() {
-        try {
-            var res = await fetch(`http://localhost:8000/favorites/1`);
-            console.log(res);
-            const text = await res.json();
-            if (res.ok) {
-                favoritos = text;
-                return text;
-            } else {
-                throw new Error("Erro ao obter favoritos");
-            }
-        } catch (error) {
-            console.error("Erro ao obter favoritos:", error);
-            throw error;
+      try {
+        const res = await fetch(`http://localhost:8000/favoritesArtist/1`);
+        if (res.ok) {
+          const data = await res.json();
+          favoritos = data;
+          return data;
+        } else {
+          throw new Error("Erro ao obter artistas favoritos");
         }
+      } catch (error) {
+        console.error("Erro ao obter artistas favoritos:", error);
+      }
     }
-
-    function handleClick() {
-        promise = getFavoritos();
-    }
-
-    async function deleteFavorito(e) {
-        e.preventDefault();
-        const tmdb_id = e.target.elements.tmdb_id.value;
-
-        try {
-            const res = await fetch(`http://localhost:8000/deleteFavoritos/1/${tmdb_id}`, {
-                method: 'DELETE',
-                headers: {'Content-Type': 'application/json'}
-            });
-
-            if (res.ok) {
-                resposta = `Filme desfavoritado`;
-                // Somente fazer um novo getFavoritos se a exclusão for bem-sucedida (retorno 200)
-                promise = getFavoritos();
-            } else {
-                throw new Error("Erro ao desfavoritar filme");
-            }
-        } catch (error) {
-            console.error("Erro ao desfavoritar filme:", error);
-            throw error;
+  
+    async function deleteFavorito(e, id) {
+      e.preventDefault();
+      try {
+        const res = await fetch(`http://localhost:8000/deleteFavoritesArtista/1/${id}`, {
+          method: 'DELETE',
+          headers: {'Content-Type': 'application/json'}
+        });
+  
+        if (res.ok) {
+          // Atualizar a lista de favoritos após a exclusão
+          await getFavoritos();
+        } else {
+          throw new Error("Erro ao desfavoritar artista");
         }
+      } catch (error) {
+        console.error("Erro ao desfavoritar artista:", error);
+      }
     }
-</script>
-
-<button on:click={handleClick}> Carregar filmes favoritos... </button>
-
-{#await promise}
-    <p>...loading</p>
-{:then favoritos}
-    <h1>Meus Filmes Favoritos</h1>
+  </script>
+  
+  <button on:click={getFavoritos}> Carregar artistas favoritos... </button>
+  
+  {#await promise}
+    <p>Carregando...</p>
+  {:then favoritos}
+    <h1>Meus Artistas Favoritos</h1>
     {#each favoritos as favorito}
-        <p>Nome: {favorito.title} - Id: {favorito.tmdb_id} </p>
-        <form on:submit|preventDefault={deleteFavorito}>
-            <input type="hidden" name="tmdb_id" value="{favorito.tmdb_id}">
-            <button type="submit">Desfavoritar</button>
-        </form>
+      <p>Nome: {favorito.name} - Id: {favorito.id} </p>
+      <button on:click={(e) => deleteFavorito(e, favorito.id)}>Desfavoritar</button>
     {/each}
-{/await}
+  {:catch error}
+    <p style="color: red">Erro ao carregar: {error.message}</p>
+  {/await}
+  

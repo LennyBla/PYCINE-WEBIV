@@ -1,15 +1,21 @@
 import requests
 import uvicorn
 from fastapi import FastAPI 
+
+# Chave de API para acessar os serviços do TMDB
 api_key = "6f77cb8794e999fed44476c8b3303723"
+
+# URL base para descobrir filmes no TMDB
 endpoint = "https://api.themoviedb.org/3/discover/movie"
 
+# Parâmetros para a requisição, como idioma, página e critérios de ordenação
 params = f"?include_adult=false&include_video=false&language=en-US&page=1&sort_by=vote_count.desc&year=2023"
-
 url = f"{endpoint}{params}&api_key={api_key}"
 
+# Cabeçalhos para a requisição HTTP
 headers = {"accept": "application/json"} 
 
+# Lista de gêneros de filmes
 genres = [{'id': 28, 'name': 'Ação'}, 
     {'id': 12, 'name': 'Aventura'}, 
     {'id': 16, 'name': 'Animação'}, 
@@ -61,9 +67,10 @@ def get_artist_by_name(name: str):
         f"?query={name}"
     )
     return data
-
+# Criação da aplicação FastAPI
 app = FastAPI()
 
+# Rota para obter filmes da semana
 @app.get('/week')
 def get_week_movies():
     data = get_json(
@@ -77,6 +84,7 @@ def get_week_movies():
             break
     return five_movies
 
+# Função para imprimir filmes populares (usada somente no script, não na API)
 def filmes_populares():
     data = get_json(
         "https://api.themoviedb.org/3/discover/movie",
@@ -140,6 +148,7 @@ if 'genres' in data:
 else:
     print("Não foi possível obter os gêneros da API.") 
     
+# Execução do script para teste    
 if __name__ == "__main__":
     filmes_populares()
 
