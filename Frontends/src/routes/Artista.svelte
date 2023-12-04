@@ -23,21 +23,19 @@
     }
     
     async function favoritarArtista(tmdb_id, name) {
-    try {
-      const res = await fetch(`http://localhost:8000/favorites/artist//${tmdb_id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name: name })
-      });
-
+        try {
+        const res = await fetch(`http://localhost:8000/favorites/artist/1/${tmdb_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ tmdb_id: name })
+        });
       if (res.ok) {
-        favoritedArtist = name; 
         document.getElementById('alert-name').textContent = name;
         const alertDiv = document.getElementById('alert')
         alertDiv.style.display = 'block';
-        setTimeout(() => { favoritedArtist = null; }, 3000); 
+        setTimeout(() => { alertDiv.style.display = 'none';}, 3000); 
       } else {
         const errorText = await res.text();
         console.error('Erro ao favoritar artista:', errorText);
@@ -45,9 +43,9 @@
       }
     } catch (error) {
       console.error('Erro ao favoritar artista:', error);
-      alert('Erro ao favoritar artista.');
     }
   }
+  
 </script>
   
 <div class="content">
@@ -82,8 +80,9 @@
     </div>
     
     <div id="alert">
-      Favoritado ❤️‍🔥: <span id="alert-title"></span>
-    </div>
+        Favoritado ❤️‍🔥: <span id="alert-title"></span>
+      </div>
+    
   </div>
   
 <style>
@@ -136,4 +135,14 @@
     button {
         margin-top: 1rem;
     }
+    #alert {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #000000;
+    color: white;
+    padding: 16px;
+    z-index: 1000;
+  }
 </style>

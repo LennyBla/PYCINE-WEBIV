@@ -71,6 +71,7 @@ async def find_filmes_artista(personId: int):
     return {"id": personId}
 
 # PESQUISA FILMES ------------------------------------------------------------------------------------------------
+
 @app.get("/filmes")
 async def filmes(search: Optional[str] = None):
     if search:
@@ -106,6 +107,7 @@ async def filmes(search: Optional[str] = None):
 
         return {"populares": populares, "estreias": estreias}
 
+
 #PESQUISA DE ARTISTAS ----------------------------------------------------------------------------------------------
 @app.get("/artistas/{name}")
 async def get_artista(name: str):
@@ -123,10 +125,6 @@ async def get_artista(name: str):
         })
     filtro.sort(reverse=True, key=lambda artist: artist['rank'])
     return filtro
-
-@app.get("/favorites/{user_id}", response_model=list[schemas.Movie])
-def get_favorites(user_id:int , db: Session = Depends(get_db)):
-    return crud.get_favorito(db, user_id=user_id )
 
 # USUÁRIOS ------------------------------------------------------------------------------------------------
 @app.get("/getUsers")

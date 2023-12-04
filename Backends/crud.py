@@ -34,14 +34,12 @@ def favorite_movie(db: Session, user_id: int, tmdb_id: int, title: str, image: s
     if user is None:
         return None
 
-    # Fetch movie details from TMDB
     movie_details = get_json("/movie", f"/{tmdb_id}?language=en-US")
     movie_title = movie_details['original_title']
     movie_image = f"https://image.tmdb.org/t/p/w185{movie_details['poster_path']}"
 
     existing_movie = next((m for m in user.movies if m.tmdb_id == tmdb_id), None)
     if existing_movie is None:
-        # Ensure your Movie model includes fields for title and image
         movie = models.Movie(tmdb_id=tmdb_id, title=movie_title, image=movie_image, user_id=user_id)
         db.add(movie)
         user.movies.append(movie)
