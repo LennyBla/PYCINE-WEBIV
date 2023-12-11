@@ -21,3 +21,5 @@ class Movie(Base):
     image = Column(String)  
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="movies")
+    
+    

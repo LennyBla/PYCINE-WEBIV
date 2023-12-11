@@ -26,7 +26,7 @@
       <li><a href="/" on:click|preventDefault={() => (menu = 2)}>Artista</a></li>
       <li><a href="/" on:click|preventDefault={() => (menu = 3)}>User</a></li>
       <li><a href="/" on:click|preventDefault={() => (menu = 4)}>User List</a></li>
-      <li><a href="/" on:click|preventDefault={() => (menu = 5)}>Meus Favoritos</a></li>
+      <li><a href="/" on:click|preventDefault={() => (menu = 5)}>Meus Filmes Favoritos</a></li>
       <li><a href="/" on:click|preventDefault={() => (menu = 6)}>Meus Artista Favoritos</a></li>
     </ul>
   </div>

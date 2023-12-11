@@ -1,35 +1,36 @@
 <script>
-  // Importa o stylesheet global
   import '../globals.css';
+  import { onMount } from 'svelte';
 
-  // Variáveis reativas para armazenar a promessa da busca de filmes e o termo de pesquisa
-  let promise = getFilmes();
+  let filmesPopulares = [];
+  let filmesEmEstreia = [];
+  let filmesPesquisados = [];
   let searchTerm = "";
 
-  // Função assíncrona para obter a lista de filmes com base no termo de pesquisa
-  async function getFilmes(searchTerm) {
+  onMount(async () => {
+    await loadPopularAndNowPlaying();
+  });
+
+  async function loadPopularAndNowPlaying() {
+    filmesPopulares = await fetchApi('/filmes-populares');
+    filmesEmEstreia = await fetchApi('/filmes-em-estreia');
+  }
+  async function fetchApi(endpoint) {
     try {
-      const res = await fetch(`http://localhost:8000/filmes?title=${encodeURIComponent(searchTerm)}`);
-      const text = await res.json();
-      if (res.ok) {
-        return text;
-      } else {
-        throw new Error(text);
-      }
+      const response = await fetch(`http://localhost:8000${endpoint}`);
+      const data = await response.json();
+      return response.ok ? (data.populares || data.estreias || data.search || []) : [];
     } catch (error) {
-      // Exibe detalhes do erro no console para fins de depuração
       console.error('Erro ao buscar filmes:', error);
-      // Propaga o erro para que ele possa ser tratado no bloco catch na marcação Svelte
-      throw error;
+      return [];
     }
   }
 
-  // Função chamada ao clicar no botão de pesquisa
-  function search() {
-    // Chama getFilmes com o termo de busca
-    promise = getFilmes(searchTerm);
+  async function search() {
+    if (searchTerm) {
+      filmesPesquisados = await fetchApi(`/pesquisar-filmes?search=${encodeURIComponent(searchTerm)}`);
+    }
   }
-
   // Função assíncrona para favoritar um filme
   async function favoritarFilme(tmdb_id, title) {
     try {
@@ -64,70 +65,56 @@
   }
 </script>
 
-{#await promise then data}
-  <!-- Seção de pesquisa -->
-  <div class="title flexCenter">
-    <form action="">
-      <input bind:value={searchTerm} type="text" />
-      <button on:click={search}> Procurar </button>
-    </form>
+<div class="title flexCenter">
+  <form on:submit|preventDefault={search}>
+    <input bind:value={searchTerm} type="text" />
+    <button type="submit"> Procurar </button>
+  </form>
+</div>
+
+<h1>Filmes</h1>
+
+<!-- Seção de filmes pesquisados -->
+{#if filmesPesquisados.length > 0}
+  <h2>Resultados da Pesquisa</h2>
+  <div class="content flexCenter">
+    {#each filmesPesquisados as filme}
+      <div class="movies boxBorder">
+        <p>{filme.title}</p>
+        <img src={filme.image} alt="capa">
+        <button type="button" on:click={() => favoritarFilme(filme.tmdb_id, filme.title)}>Favoritar</button>
+      </div>
+    {/each}
   </div>
-  <h1> Filmes</h1>
+{/if}
 
-  {#await promise}
-    <!-- Exibido durante a espera pela resposta da API -->
-    <p>...aguardando</p>
-  {:then filmes}
-    <!-- Seção de estreias de filmes -->
-    <div class="filmes">
-      <h1>Estreias de Filmes 🎞️</h1>
-      <div class="content flexCenter">
-        {#if filmes.estreias && filmes.estreias.length > 0}
-          {#each filmes.estreias as filme}
-            <!-- Exibição de informações de cada filme -->
-            <div class="movies boxBorder">
-              <p>{filme.title}</p>
-              <img src="{filme.image}" alt="capa">
-              <!-- Botão para favoritar o filme -->
-              <button type="button" on:click={() => favoritarFilme(filme.tmdb_id, filme.title)}>Favoritar</button>
-            </div>
-          {/each}
-        {:else}
-          <!-- Exibido se não houver filmes em estreia -->
-          <p>Nenhum filme em estreia encontrado.</p>
-        {/if}
-      </div>
-
-      <!-- Seção de filmes populares -->
-      <h1>Filmes Populares 🎞️</h1>
-      <div class="content flexCenter">
-        {#if filmes.populares && filmes.populares.length > 0}
-          {#each filmes.populares as filme}
-            <!-- Exibição de informações de cada filme -->
-            <div class="movies boxBorder">
-              <p>{filme.title}</p>
-              <img src="{filme.image}" alt="capa">
-              <!-- Botão para favoritar o filme -->
-              <button type="button" on:click={() => favoritarFilme(filme.tmdb_id, filme.title)}>Favoritar</button>
-            </div>
-          {/each}
-        {:else}
-          <!-- Exibido se não houver filmes populares -->
-          <p>Nenhum filme popular encontrado.</p>
-        {/if}
-      </div>
-
-      <!-- Alerta de filme favoritado -->
-      <div id="alert">
-        Favoritado ❤️‍🔥: <span id="alert-title"></span>
-      </div>
+<!-- Seção de estreias de filmes -->
+<h2>Estreias de Filmes 🎞️</h2>
+<div class="content flexCenter">
+  {#each filmesEmEstreia as filme}
+    <div class="movies boxBorder">
+      <p>{filme.title}</p>
+      <img src={filme.image} alt="capa">
+      <button type="button" on:click={() => favoritarFilme(filme.tmdb_id, filme.title)}>Favoritar</button>
     </div>
+  {/each}
+</div>
 
-  {:catch error}
-    <!-- Exibição de mensagens de erro em caso de falha na requisição -->
-    <p style="color: red">{error.message}</p>
-  {/await}
-{/await}
+<!-- Seção de filmes populares -->
+<h2>Filmes Populares 🎞️</h2>
+<div class="content flexCenter">
+  {#each filmesPopulares as filme}
+    <div class="movies boxBorder">
+      <p>{filme.title}</p>
+      <img src={filme.image} alt="capa">
+      <button type="button" on:click={() => favoritarFilme(filme.tmdb_id, filme.title)}>Favoritar</button>
+    </div>
+  {/each}
+</div>
+
+<div id="alert">
+  Favoritado ❤️‍🔥: <span id="alert-title"></span>
+</div>
 
 <style>
   /* Estilos CSS para a marcação Svelte */

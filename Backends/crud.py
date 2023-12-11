@@ -118,12 +118,11 @@ def delete_favorite_artista(db: Session, tmdb_id: int, user_id: int):
     if user is None:
         return None
 
-    # Remove o artista da lista de favoritos do usuário---------------------------------------------------------------
+    # Remove o artista da lista de favoritos do usuário
     favorite_artista = next((a for a in user.artistas if a.tmdb_id == tmdb_id), None)
     if favorite_artista:
         user.artistas.remove(favorite_artista)
         db.delete(favorite_artista)
         db.commit()
-    else:
-        favorite_artista = None
+
     return favorite_artista

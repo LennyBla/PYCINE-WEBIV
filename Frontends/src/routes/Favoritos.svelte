@@ -6,28 +6,22 @@
 
     // Função assíncrona para obter a lista de filmes favoritos
     async function getFavoritos() {
-        try {
-            // Requisição à API para obter a lista de favoritos
-            var res = await fetch(`http://localhost:8000/favorites/1`);
-            
-            // Imprimir a resposta no console para fins de depuração
-            console.log(res);
-
-            const text = await res.json();
-
-            if (res.ok) {
-                // Atualizar a lista de favoritos com os dados recebidos
-                favoritos = text;
-                return text;
-            } else {
-                throw new Error("Erro ao obter favoritos");
-            }
-        } catch (error) {
-            console.error("Erro ao obter favoritos:", error);
-            throw error;
+    try {
+        var res = await fetch(`http://localhost:8000/favorites/1`);
+        console.log(res);
+        const text = await res.json();
+        if (res.ok) {
+            favoritos = text;
+            console.log(favoritos);  // Imprima a variável favoritos no console
+            return text;
+        } else {
+            throw new Error("Erro ao obter favoritos");
         }
+    } catch (error) {
+        console.error("Erro ao obter favoritos:", error);
+        throw error;
     }
-
+}
     // Função chamada ao clicar no botão para carregar filmes favoritos
     function handleClick() {
         promise = getFavoritos();
@@ -61,21 +55,63 @@
 </script>
 
 <!-- Botão para carregar filmes favoritos -->
+<!-- Botão para carregar filmes favoritos -->
 <button on:click={handleClick}> Carregar filmes favoritos... </button>
 
-<!-- Renderização condicional da lista de favoritos -->
 {#await promise}
     <p>...loading</p>
 {:then favoritos}
-    <!-- Título e iteração sobre a lista de favoritos -->
     <h1>Meus Filmes Favoritos</h1>
-    {#each favoritos as favorito}
-        <!-- Exibir informações sobre cada filme favorito -->
-        <p>Nome: {favorito.title} - Id: {favorito.tmdb_id} </p>
-        <!-- Formulário para desfavoritar um filme -->
-        <form on:submit|preventDefault={deleteFavorito}>
-            <input type="hidden" name="tmdb_id" value="{favorito.tmdb_id}">
-            <button type="submit">Desfavoritar</button>
-        </form>
-    {/each}
+    <div class="favoritos-container">
+        {#each favoritos as favorito}
+            <div class="favorito">
+                <p>{favorito.title}</p> 
+                <img src={favorito.image} alt="capa" class="favorito-image"> 
+                <p>ID: {favorito.tmdb_id}</p> 
+                <form on:submit|preventDefault={deleteFavorito}>
+                    <input type="hidden" name="tmdb_id" value={favorito.tmdb_id}>
+                    <button type="submit" class="btn-desfavoritar">Desfavoritar</button>
+                </form>
+            </div>
+        {/each}
+    </div>
+{:catch error}
+    <p style="color: red;">{error.message}</p>
 {/await}
+
+<style>
+    .favoritos-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    .favorito {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        margin: 10px;
+        text-align: center;
+        width: 200px;
+    }
+
+    .favorito-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+    }
+    .btn-desfavoritar {
+        margin-top: 10px;
+        padding: 5px 10px;
+        background-color: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn-desfavoritar:hover {
+        background-color: #ff0000;
+    }
+</style>

@@ -10,7 +10,7 @@ from typing import Optional
 
 app = FastAPI()
 
-# Habilita CORS (permite que o Svelte acesse o FastAPI)
+# Habilita CORS (permite que o Svelte acesse o FastAPI)-----------------------------------------------
 origins = [
      "http://localhost",
      "http://localhost:5173",
@@ -26,7 +26,7 @@ app.add_middleware(
     #allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
-# Lista de gêneros de filmes (usado em uma rota da API)
+# Lista de gêneros de filmes (usado em uma rota da API)-----------------------------------------------
 genres = [{'id': 28, 'name': 'Ação'}, 
     {'id': 12, 'name': 'Aventura'}, 
     {'id': 16, 'name': 'Animação'}, 
@@ -34,7 +34,7 @@ genres = [{'id': 28, 'name': 'Ação'},
     {'id': 80, 'name': 'Crime'}, 
     {'id': 99, 'name': 'Documentário'},
     {'id': 18, 'name': 'Drama'},
-    {'id': 10751, 'name': 'Família'}, 
+    {'id': 10751,'name': 'Família'}, 
     {'id': 14, 'name': 'Fantasia'}, 
     {'id': 36, 'name': 'História'}, 
     {'id': 27, 'name': 'Terror'},
@@ -48,69 +48,74 @@ genres = [{'id': 28, 'name': 'Ação'},
     {'id': 37, 'name': 'Faroeste'}
     ]
 
-@app.get("/api/genres")# Cria uma sessão de banco de dados
+@app.get("/api/genres")# Cria uma sessão de banco de dados-----------------------------------------------
 def read_genres():
     return genres
 
-# Cria uma sessão de banco de dados
+# Cria uma sessão de banco de dados-----------------------------------------------
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-# Cria tabelas no banco de dados, se elas ainda não existirem
+# Cria tabelas no banco de dados, se elas ainda não existirem-----------------------------------------------
 models.Base.metadata.create_all(bind=engine)
-
 
 # Rota para buscar um filme pelo título
 @app.get("/filme/{title}")
 async def find_movie(title: str):
     return {"tmdb_id": title}
 
-# Rota para buscar filmes associados a um artista
+# Rota para buscar filmes associados a um artista-----------------------------------------------
 @app.get("/artista/filmes")
 async def find_filmes_artista(personId: int):
     return {"id": personId}
 
-# Rota para buscar filmes com base em um termo de pesquisa
+
+# Rota para buscar filmes com base em um termo de pesquisa-----------------------------------------------
 # Código para buscar filmes pelo termo de pesquisa ou listar filmes populares e em estreia
-@app.get("/filmes")
-async def filmes(search: Optional[str] = None):
-    if search:
-        # Realiza a busca de filmes pelo termo de pesquisa
-        data_search = get_json("/search/movie", f"?query={search}&language=en-US")
-        results_search = data_search['results']
-        filmes_search = []
-        for movie in results_search:
-            filmes_search.append({
-                "title": movie['original_title'],
-                "image": f"https://image.tmdb.org/t/p/w185{movie['poster_path']}",
-                "tmdb_id": movie['id']
-            })
-        return {"search": filmes_search}
-    else:
-        # Buscar filmes populares
-        data_populares = get_json("/discover/movie", "?sort_by=vote_count.desc")
-        results_populares = data_populares['results']
-        populares = [{
+@app.get("/pesquisar-filmes")
+async def pesquisar_filmes(search: str):
+    # Realiza a busca de filmes pelo termo de pesquisa
+    data_search = get_json("/search/movie", f"?query={search}&language=en-US")
+    results_search = data_search['results']
+    filmes_search = [
+        {
             "title": movie['original_title'],
             "image": f"https://image.tmdb.org/t/p/w185{movie['poster_path']}",
             "tmdb_id": movie['id']
-        } for movie in results_populares[:4]]
+        } for movie in results_search
+    ]
+    return {"search": filmes_search}
 
-        # Buscar filmes em estreia
-        data_estreias = get_json("/movie/now_playing", "?language=en-US")
-        results_estreias = data_estreias['results']
-        estreias = [{
+@app.get("/filmes-populares")
+async def filmes_populares():
+    # Buscar filmes populares
+    data_populares = get_json("/discover/movie", "?sort_by=vote_count.desc")
+    results_populares = data_populares['results']
+    populares = [
+        {
             "title": movie['original_title'],
             "image": f"https://image.tmdb.org/t/p/w185{movie['poster_path']}",
             "tmdb_id": movie['id']
-        } for movie in results_estreias[:4]]
+        } for movie in results_populares[:4]
+    ]
+    return {"populares": populares}
 
-        return {"populares": populares, "estreias": estreias}
-
-
+@app.get("/filmes-em-estreia")
+async def filmes_em_estreia():
+    # Buscar filmes em estreia
+    data_estreias = get_json("/movie/now_playing", "?language=en-US")
+    results_estreias = data_estreias['results']
+    estreias = [
+        {
+            "title": movie['original_title'],
+            "image": f"https://image.tmdb.org/t/p/w185{movie['poster_path']}",
+            "tmdb_id": movie['id']
+        } for movie in results_estreias[:4]
+    ]
+    return {"estreias": estreias}
 #PESQUISA DE ARTISTAS ----------------------------------------------------------------------------------------------
 @app.get("/artistas/{name}")
 async def get_artista(name: str):
@@ -174,13 +179,8 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 # FAVORITAR FILME ---------------------------------------------------------------------------------------
 @app.post("/favorites/{user_id}/{tmdb_id}")
 def favorite_movie(user_id: int, tmdb_id: int, db: Session = Depends(get_db)):
-    # Fetch movie details from TMDB
     movie_details = get_json("/movie", f"/{tmdb_id}?language=en-US")
-    movie_title = movie_details['original_title']
-    movie_image = f"https://image.tmdb.org/t/p/w185{movie_details['poster_path']}"
-
-    # Use the correct variable names
-    return crud.favorite_movie(db=db, user_id=user_id, tmdb_id=tmdb_id, title=movie_title, image=movie_image)
+    return crud.favorite_movie(db=db, user_id=user_id, tmdb_id=tmdb_id, title=movie_details['original_title'], image=f"https://image.tmdb.org/t/p/w185{movie_details['poster_path']}")
 
 # PEGAR TODOS OS FILMES FAVORITADOS ----------------------------------------------------------------------
 @app.get("/favorites/{user_id}", response_model=list[schemas.Movie])
